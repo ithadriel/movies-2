@@ -138,6 +138,7 @@ class Person # person class, keeps a hash of movie to the preson's ratings, all 
     @movies.push(movie)
     if rating >= 4
       @liked_movies.push(movie)
+    end
   end
 end
 
@@ -183,7 +184,7 @@ class Control
 
   def mean
     if(@mean == nil)
-      sum = @prediction_differences.reduce(0){|sum, n| sum + n.abs} # since we care about distance from the prediction and not the direction, we use absolute value
+      sum = @prediction_differences.reduce(0){|acc, n| acc + n.abs} # since we care about distance from the prediction and not the direction, we use absolute value
       length = @prediction_differences.length
       @mean = sum*1.0/length
     end
@@ -203,8 +204,9 @@ class Control
 
   def rms
     if(@rms == nil)
-      sum_in_square = @prediction_differences.map{|x| x * x}.reduce(:+)
-      @rms = sum_in_square/prediction_differences.length
+      squared_values = @prediction_differences.map{|x| x * x}
+      squared_sum = squared_values.reduce(:+)
+      @rms = Math.sqrt(squared_sum/(@prediction_differences.length)*1.0)
     end
     return @rms
   end
@@ -212,7 +214,7 @@ class Control
   def to_a
     return @validator.formatted_ratings_predictions
   end
-  
+
 end
 
 
@@ -220,5 +222,5 @@ test = Control.new("u1.base", "u1.test")
 test.run_predictions
 puts test.mean
 puts test.stdev
-
-end
+puts test.rms
+puts test.to_a
